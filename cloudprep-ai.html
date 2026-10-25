@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CloudPrep AI</title>
+<style>
+:root{color-scheme:light;--bg:#fff;--sf:#f5f8fd;--ink:#0b1f44;--mut:#52607a;--ac:#1f6feb;--acs:#e6f0ff;--bd:#dde5f1;--ok:#127a43;--oks:#e4f6ec;--bad:#b42318;--bads:#fdeceb;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0c1426;--sf:#121c33;--ink:#e8eefb;--mut:#9fb0cf;--ac:#6aa5ff;--acs:#18284a;--bd:#24345a;--ok:#5fd697;--oks:#10301f;--bad:#ff8f84;--bads:#3a1714}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0c1426;--sf:#121c33;--ink:#e8eefb;--mut:#9fb0cf;--ac:#6aa5ff;--acs:#18284a;--bd:#24345a;--ok:#5fd697;--oks:#10301f;--bad:#ff8f84;--bads:#3a1714}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+h1{font-size:clamp(1.7rem,4vw,2.6rem);line-height:1.15;margin:.2em 0 .4em}h2{font-size:1.25rem;margin:1.2em 0 .5em}h3{margin:.2em 0 .4em;font-size:1.05rem}
+p{margin:.4em 0}.mut{color:var(--mut)}.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:11px 20px;font:600 1rem inherit;cursor:pointer;font-family:inherit}
+:root[data-theme="dark"] .btn{color:#06122a}@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{color:#06122a}}
+.btn.alt{background:var(--acs);color:var(--ac)}.btn.sm{padding:6px 12px;font-size:.9rem}.btn:disabled{opacity:.5;cursor:not-allowed}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:18px}
+.grid{display:grid;gap:14px}.g3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+nav.lp{display:flex;justify-content:space-between;align-items:center;padding:16px 0}.logo{font-weight:800;font-size:1.15rem}.logo span{color:var(--ac)}
+.hero{padding:48px 0 32px;max-width:720px}.tag{color:var(--ac);font-weight:700}
+.step{display:flex;gap:12px;align-items:flex-start}.num{background:var(--ac);color:#fff;border-radius:50%;width:30px;height:30px;flex:none;display:grid;place-items:center;font-weight:700}
+.disc{font-size:.9rem;color:var(--mut);border-top:1px solid var(--bd);margin-top:40px;padding:20px 0 40px}
+.shell{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.sb{background:var(--sf);border-right:1px solid var(--bd);padding:18px 12px;position:sticky;top:0;height:100vh;overflow:auto}
+.sb button.n{display:block;width:100%;text-align:left;background:none;border:0;border-radius:9px;padding:10px 12px;margin:2px 0;color:var(--ink);font:500 .98rem inherit;font-family:inherit;cursor:pointer}
+.sb button.n.on{background:var(--acs);color:var(--ac);font-weight:700}
+.main{padding:24px clamp(16px,4vw,40px) 60px;max-width:900px;width:100%}.top{display:none}
+@media(max-width:820px){.shell{grid-template-columns:1fr}.top{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--sf);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:5}
+.sb{position:fixed;left:0;top:0;bottom:0;width:250px;z-index:9;transform:translateX(-105%);transition:transform .2s;height:auto}.sb.open{transform:none;box-shadow:0 0 0 100vmax rgba(0,0,0,.35)}}
+label{display:block;font-weight:600;margin:12px 0 4px;font-size:.95rem}
+input,select,textarea{width:100%;padding:10px;border:1px solid var(--bd);border-radius:9px;background:var(--bg);color:var(--ink);font:inherit}
+input[type=checkbox],input[type=radio]{width:auto}
+.opt{display:block;width:100%;text-align:left;background:var(--bg);color:var(--ink);border:1.5px solid var(--bd);border-radius:10px;padding:12px 14px;margin:8px 0;font:inherit;cursor:pointer}
+.opt.sel{border-color:var(--ac);background:var(--acs)}.opt.ok{border-color:var(--ok);background:var(--oks)}.opt.no{border-color:var(--bad);background:var(--bads)}
+.fb{border-radius:10px;padding:12px 14px;margin:10px 0}.fb.ok{background:var(--oks)}.fb.no{background:var(--bads)}
+.stat{font-size:1.8rem;font-weight:800}.bar{height:9px;border-radius:6px;background:var(--bd);overflow:hidden}.bar i{display:block;height:100%;background:var(--ac)}.bar i.w{background:var(--bad)}
+.chip{display:inline-block;font-size:.78rem;font-weight:700;padding:2px 9px;border-radius:99px;background:var(--acs);color:var(--ac)}
+.err{background:var(--bads);color:var(--bad);border-radius:10px;padding:10px 14px;margin:10px 0}
+.row{display:flex;gap:8px;align-items:center;margin:6px 0}.row input[type=text]{flex:1}.empty{text-align:center;padding:30px 16px}
+.bars{display:flex;gap:6px;align-items:flex-end;height:110px}.bars div{flex:1;background:var(--ac);border-radius:5px 5px 0 0;min-width:10px}
+.note{font-size:.88rem;color:var(--mut)}a{color:var(--ac)}details summary{cursor:pointer}.chat-in{position:sticky;bottom:0;background:var(--bg);padding:10px 0}
+</style></head><body><div id="app"></div>
+<script>
+"use strict";
+/* ---------- Config & storage adapter (swap Store for a Supabase adapter later) ---------- */
+// AI is optional and separate from the quiz engine. Point this at YOUR OWN server route that holds the API key.
+const CONFIG={aiEndpoint:""};
+const Store={
+  get(k,d){try{const v=localStorage.getItem("cp:"+k);return v?JSON.parse(v):d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem("cp:"+k,JSON.stringify(v));return true}catch(e){return false}},
+  clear(){try{Object.keys(localStorage).filter(k=>k.startsWith("cp:")).forEach(k=>localStorage.removeItem(k));return true}catch(e){return false}}
+};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const DOM={cloud:"Cloud concepts",arch:"Azure architecture and services",gov:"Azure management and governance"};
+const DIF=["Beginner","Intermediate"];
+
+/* ---------- Content (original) ---------- */
+const T={
+models:{n:"Cloud models and service types",d:"cloud",k:"public private hybrid iaas paas saas shared responsibility service model",
+ l:"Cloud computing means renting IT resources over the internet. Public cloud is shared infrastructure run by a provider, private cloud is dedicated to one organisation, and hybrid mixes both. IaaS rents raw servers, PaaS gives you a platform to run code, and SaaS is finished software. Protecting your data and accounts is always your job.",
+ a:"Housing: IaaS is renting bare land, PaaS is a furnished flat where you bring your belongings, SaaS is a hotel room.",
+ af:"A Nairobi retailer keeps its tills on a local server but hosts its online shop in Azure. That mix is a hybrid cloud."},
+benefits:{n:"Cloud benefits and pricing models",d:"cloud",k:"capex opex elasticity scalability reliability availability benefit pay-as-you-go consumption",
+ l:"Cloud trades big upfront purchases (CapEx) for pay-as-you-go spending (OpEx). Scalability means you can add capacity; elasticity means capacity grows and shrinks automatically with demand. High availability keeps services running when parts fail.",
+ a:"A restaurant borrows extra tables for a wedding crowd and hands them back afterwards.",
+ af:"A Lagos ticketing site needs ten times the servers on the night tickets go on sale, and almost none the next morning."},
+regions:{n:"Regions, zones and resource groups",d:"arch",k:"region zone availability datacenter resource group subscription pair management group",
+ l:"An Azure region is a set of datacenters close together. Availability Zones are separate datacenters inside a region, so one failure does not stop your app. A resource group is a logical folder for related resources, and a subscription is a billing and access boundary.",
+ a:"A region is a city, zones are different neighbourhoods in it, and a resource group is the folder holding one project’s paperwork.",
+ af:"A Kigali fintech spreads its app across zones so a power cut in one building doesn’t take payments offline."},
+core:{n:"Core compute, storage and networking",d:"arch",k:"virtual machine vm function serverless app service blob storage network vnet container compute",
+ l:"Virtual Machines give you full control of an operating system. App Service hosts web apps without server upkeep. Azure Functions runs small bits of code when events happen. Blob Storage holds photos, videos and backups, and Virtual Networks let your resources talk privately.",
+ a:"A VM is renting a whole kitchen, App Service is renting a cooking station, Functions is ordering a single dish.",
+ af:"A farmers’ co-op in Kisumu stores crop photos in Blob Storage and uses a Function to resize each upload."},
+cost:{n:"Cost management",d:"gov",k:"cost pricing calculator tco tag budget spend billing",
+ l:"The Pricing Calculator estimates monthly cost before you deploy. The TCO Calculator compares on-premises costs with Azure. Cost Management tracks what you actually spend and can set budgets and alerts. Tags label resources, for example by department.",
+ a:"Estimating a trip budget first (calculator), then keeping receipts while travelling (Cost Management).",
+ af:"An Accra school on a tight term budget sets an alert so a forgotten test server can’t run up a surprise bill."},
+governance:{n:"Governance, security and monitoring",d:"gov",k:"policy rbac role lock monitor advisor governance access security compliance",
+ l:"Azure Policy enforces rules such as allowed regions. Role-based access control (RBAC) gives people only the permissions they need. Resource locks stop accidental deletion. Azure Monitor collects metrics and logs, and Azure Advisor recommends improvements.",
+ a:"Policy is the building’s rulebook, RBAC decides who holds which key, a lock is a padlock on the server-room door.",
+ af:"A Kampala NGO gives volunteers read-only access and locks the donor database so nobody deletes it by mistake."}
+};
+// [topic, difficulty(0/1), question, options, correctIndex, explanation]
+const Q=[
+["models",0,"A company keeps customer records on its own servers but uses Azure for extra web capacity during sales. Which cloud model is this?",["Public cloud only","Private cloud only","Hybrid cloud","Community cloud"],2,"Hybrid cloud combines on-premises or private resources with public cloud."],
+["models",0,"Which service type delivers ready-to-use software, such as web email, with no servers or code for you to manage?",["IaaS","PaaS","SaaS","On-premises hosting"],2,"SaaS is complete software managed by the provider. You just use it."],
+["models",1,"Under the shared responsibility model, who is always responsible for the customer’s data and user accounts?",["The cloud provider","The customer","The internet provider","Nobody"],1,"Whatever the service type, the customer remains responsible for their data, accounts and access."],
+["benefits",0,"Moving from buying servers upfront to paying monthly for what you use shifts spending from…",["OpEx to CapEx","CapEx to OpEx","Tax to revenue","Fixed to free"],1,"Upfront purchases are capital expenditure (CapEx). Pay-as-you-go is operational expenditure (OpEx)."],
+["benefits",0,"A shop’s site needs more power only on payday weekends, then less. Which benefit lets resources grow and shrink automatically with demand?",["Fixed capacity","Elasticity","Manual provisioning","Data residency"],1,"Elasticity automatically adds and removes resources as demand changes."],
+["benefits",1,"Adding more virtual machines to an app to handle a lasting rise in users is best described as…",["Scaling out","Disaster recovery","Fault tolerance","Data sovereignty"],0,"Scaling out (horizontal scalability) adds more instances to share the load."],
+["regions",0,"What is an Azure region?",["A single server rack","A set of datacenters in a latency-defined area, linked by a fast network","A billing country","A type of subscription"],1,"A region is a geographic area containing one or more datacenters."],
+["regions",0,"Which feature puts your app in physically separate datacenters within one region to survive a datacenter failure?",["Resource locks","Availability Zones","Tags","Management groups"],1,"Availability Zones are separate datacenter locations inside a region."],
+["regions",1,"What is an Azure resource group?",["A logical container for related resources","A physical datacenter","A pricing tier","A set of user accounts"],0,"A resource group organises resources that share a lifecycle, so you can manage or delete them together."],
+["core",0,"Which service runs small pieces of code in response to events without you managing servers?",["Azure Functions","Azure Virtual Machines","Azure Blob Storage","Azure DNS"],0,"Azure Functions is event-driven, serverless compute."],
+["core",0,"Which storage option suits large amounts of unstructured data such as photos and videos?",["Azure Blob Storage","Azure SQL Database","Azure Virtual Network","Azure Key Vault"],0,"Blob Storage is built for unstructured objects like images, video and backups."],
+["core",1,"A legacy app needs full control of the operating system. Which service fits best?",["Azure Virtual Machines","Azure Functions","A SaaS email product","Azure DNS"],0,"Virtual Machines (IaaS) give you control of the OS and what runs on it."],
+["cost",0,"Which tool estimates the monthly cost of Azure services before you deploy them?",["Azure Monitor","Pricing calculator","Azure Policy","Service Health"],1,"The Pricing Calculator builds a cost estimate for planned resources."],
+["cost",0,"Which tool compares the cost of running workloads on-premises with running them in Azure?",["Total Cost of Ownership (TCO) calculator","Azure Advisor alerts","Resource locks","Azure Bastion"],0,"The TCO calculator estimates savings from moving on-premises workloads to Azure."],
+["cost",1,"Why do tags help with cost tracking?",["They label resources, for example by department, so costs can be grouped","They make tagged resources free","They encrypt resources","They move resources to cheaper regions"],0,"Tags are name/value labels. Cost reports can be filtered and grouped by them."],
+["governance",0,"Which service enforces rules, such as allowing resources only in approved regions?",["Azure Policy","Azure Monitor","Azure Advisor","Azure DNS"],0,"Azure Policy evaluates resources against rules and can block non-compliant deployments."],
+["governance",1,"What does a Delete resource lock do?",["Prevents the resource being deleted until the lock is removed","Encrypts the resource","Archives the resource","Blocks all reading of it"],0,"A Delete lock guards against accidental deletion even for users who have permission."],
+["governance",0,"Which service collects and analyses metrics and logs to show how your apps are performing?",["Azure Monitor","Resource groups","Tags","Subscriptions"],0,"Azure Monitor gathers telemetry so you can view, alert on and troubleshoot performance."],
+["models",0,"Which service type lets developers deploy code without managing the operating system or underlying servers?",["IaaS","PaaS","A private data centre","Colocation"],1,"PaaS provides a managed platform for running code. The provider looks after the servers and the OS.","PaaS vs IaaS"],
+["models",1,"An organisation wants infrastructure used by that organisation alone. Which model matches?",["Public cloud","Private cloud","SaaS","Shared hosting"],1,"A private cloud is dedicated to a single organisation, whether hosted on-site or by a provider.","Private cloud"],
+["models",0,"A start-up wants to rent shared infrastructure on demand from a provider, with no hardware to buy. Which cloud model is that?",["Public cloud","Private cloud","Hybrid cloud","On-premises"],0,"Public cloud is owned by a provider, shared by many customers and rented on demand.","Public cloud"],
+["benefits",0,"Which benefit means a service keeps running even if one of its components fails?",["High availability","Data residency","Billing granularity","Tagging"],0,"High availability means designing so the service stays up despite failures of individual parts.","High availability"],
+["benefits",0,"A business is billed only for the compute minutes it actually uses. Which pricing approach is this?",["Consumption-based","Fixed licence","Upfront purchase","Hardware leasing"],0,"Consumption-based pricing charges for real usage, with no upfront commitment.","Consumption pricing"],
+["benefits",1,"Which design principle lets an app keep working when part of it fails?",["Fault tolerance","A single point of failure","Manual scaling","Larger invoices"],0,"Fault-tolerant systems continue operating despite component failures.","Fault tolerance"],
+["regions",1,"Why does Azure pair most regions?",["To support recovery if one region has a widespread outage","To halve the price","To share one subscription","To merge resource groups"],0,"Region pairs are far apart and updated one at a time, which helps disaster recovery.","Region pairs"],
+["regions",0,"Which Azure construct is the boundary for billing and access to a set of resources?",["Subscription","Tag","Availability Zone","Resource lock"],0,"A subscription groups resources for billing and access control.","Subscriptions"],
+["regions",1,"Which feature lets you apply governance across several subscriptions at once?",["Management groups","Resource locks","Blob containers","Tags only"],0,"Management groups sit above subscriptions so policies and access can apply across many of them.","Management groups"],
+["core",0,"Which service hosts web apps and APIs without you managing the servers underneath?",["Azure App Service","Azure Virtual Machines","Azure Backup","Azure ExpressRoute"],0,"App Service is a managed PaaS web hosting service.","App Service"],
+["core",0,"Which service lets your Azure resources communicate privately with each other?",["Azure Virtual Network","Azure Blob Storage","Azure Functions","Azure Pricing Calculator"],0,"A virtual network is your own private network space in Azure.","Virtual networks"],
+["core",1,"Which option gives you a managed relational database, so you don’t patch the database server yourself?",["Azure SQL Database","A VM where you install a database","Blob Storage","Azure DNS"],0,"Azure SQL Database is a managed (PaaS) relational database.","Managed databases"],
+["cost",1,"A team wants a warning when monthly spending nears a limit. What should it use?",["Budgets and alerts in Cost Management","Resource locks","Availability Zones","Azure Policy"],0,"Cost Management lets you set budgets and send alerts as spending approaches them.","Budgets and alerts"],
+["cost",1,"How can committing to a resource for one or three years reduce cost?",["Azure reservations give a discount for the commitment","Tags give automatic discounts","Locks lower prices","Regions become free after a year"],0,"Reserved capacity is discounted in return for a one- or three-year commitment.","Reservations"],
+["cost",0,"Which of these can change the cost of an Azure resource?",["Its region and size","Only its name","Its tag colour","Nothing, prices are identical everywhere"],0,"Region, size, usage and pricing tier all influence what you pay.","Cost factors"],
+["governance",0,"Which feature gives a person only the permissions their job needs?",["Role-based access control (RBAC)","Resource locks","Azure Monitor","Tags"],0,"RBAC assigns roles at a scope so people get least-privilege access.","RBAC"],
+["governance",0,"Which service gives personalised recommendations to improve cost, security and reliability?",["Azure Advisor","Azure DNS","Azure Bastion","Blob Storage"],0,"Azure Advisor analyses your resources and suggests best-practice improvements.","Azure Advisor"],
+["governance",1,"Which service reports Azure platform incidents and maintenance that affect your resources?",["Azure Service Health","Azure Policy","Azure Pricing Calculator","Resource groups"],0,"Service Health tells you about outages and planned maintenance that could impact your services.","Service Health"]
+];
+// Concept tag (index 6) for the first 18 questions; new questions carry their own.
+["Hybrid cloud","SaaS","Shared responsibility","CapEx vs OpEx","Elasticity","Scalability","Azure regions","Availability Zones","Resource groups","Azure Functions","Blob Storage","Virtual Machines","Pricing calculator","TCO calculator","Tags","Azure Policy","Resource locks","Azure Monitor"].forEach((c,i)=>{Q[i][6]=c});
+
+/* ---------- Data helpers (quiz engine, no AI involved) ---------- */
+const MIN=3,GP=70,KIND={revision:"Revision practice",mastery:"Mastery check"},KIND_DONE={revision:"Revision practice complete",mastery:"Mastery check complete"};
+// Records: raw = everything stored; attAll = readable records (old v1 and new v2); att = assessments only (revision practice excluded from analysis).
+const raw=()=>{const a=Store.get("attempts",[]);return Array.isArray(a)?a:[]};
+const readable=a=>a&&Array.isArray(a.answers)&&a.answers.length&&typeof a.score==="number"&&typeof a.total==="number"&&a.answers.every(x=>x&&T[x.t]&&typeof x.ok==="boolean");
+const attAll=()=>raw().filter(readable);
+const att=()=>attAll().filter(a=>a.kind!=="revision");
+const unreadable=()=>raw().length-attAll().length;
+const missedIds=()=>{const s=new Set();attAll().forEach(a=>a.answers.forEach(x=>{if(!x.ok)s.add(x.id)}));return s};
+const seenIds=()=>{const s=new Set();attAll().forEach(a=>a.answers.forEach(x=>s.add(x.id)));return s};
+function storeOk(){try{localStorage.setItem("cp:_t","1");localStorage.removeItem("cp:_t");return true}catch(e){return false}}
+function badRec(r){ // strict validation before saving; returns "" when valid
+  if(!["quiz","revision","mastery"].includes(r.kind))return"kind";
+  if(!(r.topic==="all"||T[r.topic]))return"topic";
+  if(!["all","0","1"].includes(String(r.diff)))return"difficulty";
+  if(isNaN(Date.parse(r.date)))return"date";
+  if(!Array.isArray(r.answers)||!r.answers.length)return"no answers";
+  for(const x of r.answers){const q=Q[x.id];
+    if(!q||x.t!==q[0])return"question id";
+    if(typeof x.pick!=="string"||!q[3].includes(x.pick)||x.correct!==q[3][q[4]])return"answer text";
+    if(x.ok!==(x.pick===x.correct))return"correctness"}
+  if(r.score!==r.answers.filter(x=>x.ok).length||r.total!==r.answers.length)return"score";
+  if(r.kind==="mastery"&&!(r.base&&Number.isInteger(r.base.c)&&Number.isInteger(r.base.t)&&r.base.c<=r.base.t))return"baseline";
+  return"";
+}
+function tstats(){const s={};Object.keys(T).forEach(k=>s[k]={c:0,t:0});att().forEach(a=>a.answers.forEach(x=>{if(s[x.t]){s[x.t].t++;if(x.ok)s[x.t].c++}}));return s}
+// none = no answers; few = fewer than MIN answers (insufficient data, NOT poor performance); needs = enough answers and under GP%; ok = enough answers at or above GP%
+function status(k,s){s=s||tstats();const x=s[k];return x.t===0?"none":x.t<MIN?"few":x.c/x.t<GP/100?"needs":"ok"}
+function weak(){const s=tstats();return Object.keys(T).filter(k=>status(k,s)==="needs").sort((a,b)=>s[a].c/s[a].t-s[b].c/s[b].t)}
+function missedBy(k){const m={};att().forEach(a=>a.answers.forEach(x=>{if(x.t===k&&!x.ok&&Q[x.id]){const c=Q[x.id][6];(m[c]=m[c]||{n:0,e:Q[x.id][5]}).n++}}));return m}
+const lastMastery=k=>attAll().filter(a=>a.kind==="mastery"&&a.topic===k).pop();
+const pct=(c,t)=>t?Math.round(100*c/t):0;
+function buildQuiz(topic,diff,count,prefer,ex){
+  const missed=new Set();att().forEach(a=>a.answers.forEach(x=>{if(!x.ok)missed.add(x.id)}));
+  let pool=Q.map((q,i)=>({id:i,t:q[0],df:q[1],q:q[2],o:q[3],a:q[4],e:q[5]})).filter(x=>(topic==="all"||x.t===topic)&&(diff==="all"||x.df===+diff)&&!(ex&&ex.has(x.id)));
+  pool=shuf(pool);if(prefer)pool.sort((a,b)=>missed.has(b.id)-missed.has(a.id));
+  return pool.slice(0,count).map(x=>{const idx=shuf(x.o.map((_,i)=>i));return{...x,o:idx.map(i=>x.o[i]),a:idx.indexOf(x.a)}});
+}
+
+/* ---------- Router & shell ---------- */
+const NAV=[["overview","Overview"],["quiz","Quiz Lab"],["buddy","Study Buddy"],["coach","Weakness Coach"],["planner","Study Planner"],["progress","Progress"]];
+let view=(location.hash||"#home").slice(1),qs=null,rv=null,lastRev=null,bd={},opts={};
+if(!["home",...NAV.map(n=>n[0])].includes(view))view="home";
+function go(v,o){view=v;opts=o||{};try{location.hash=v}catch(e){}if(v==="quiz"&&!opts.keep){qs=null;rv=null}render();scrollTo(0,0)}
+window.addEventListener("hashchange",()=>{const v=location.hash.slice(1);if(v!==view&&(v==="home"||NAV.some(n=>n[0]===v)))go(v)});
+function render(){
+  const app=$("#app");
+  if(view==="home"){app.innerHTML=landing();return}
+  app.innerHTML=`<div class="shell"><header class="top"><button class="btn sm alt" aria-label="Menu" onclick="$('#sb').classList.toggle('open')">☰</button><b>CloudPrep AI</b></header>
+  <aside class="sb" id="sb"><div class="logo" style="padding:6px 12px 14px;cursor:pointer" onclick="go('home')">☁ Cloud<span>Prep</span> AI</div>
+  ${NAV.map(n=>`<button class="n ${n[0]===view?"on":""}" onclick="go('${n[0]}')">${n[1]}</button>`).join("")}
+  <p class="note" style="padding:14px 12px">Progress is saved in this browser only. Sign-in and cloud sync are not set up yet.</p></aside>
+  <main class="main" id="main"></main></div>`;
+  paint();
+}
+function paint(){const V={overview:vOverview,quiz:vQuiz,buddy:vBuddy,coach:vCoach,planner:vPlanner,progress:vProgress};$("#main").innerHTML=V[view]()+`<p class="note" style="margin-top:36px">CloudPrep AI is an independent learning tool. It is not affiliated with or endorsed by Microsoft.</p>`;if(view==="buddy")buddyAfter()}
+
+/* ---------- Landing ---------- */
+function landing(){return `<div class="wrap"><nav class="lp"><div class="logo">☁ Cloud<span>Prep</span> AI</div><button class="btn sm" onclick="go('overview')">Get Started</button></nav>
+<section class="hero"><div class="tag">Unofficial AZ-900 learning companion</div><h1>Turn your mistakes into mastery.</h1>
+<p class="mut" style="font-size:1.12rem">Practise Azure Fundamentals with original questions, plain-language explanations and a revision plan built from the answers you actually give.</p>
+<p style="margin-top:20px"><button class="btn" onclick="go('overview')">Get Started</button> <a href="#how" class="btn alt" style="text-decoration:none;display:inline-block" onclick="event.preventDefault();document.getElementById('how').scrollIntoView({behavior:'smooth'})">How it works</a></p></section>
+<section class="grid g3">
+<div class="card"><h3>📝 Smart Quiz Lab</h3><p class="mut">Pick a topic, difficulty and length. Get instant feedback and a clear explanation for every answer.</p></div>
+<div class="card"><h3>💬 AI Study Buddy</h3><p class="mut">Ask about any Azure idea and get analogies and African examples, plus a follow-up check question.</p></div>
+<div class="card"><h3>🎯 Weakness-to-Mastery Coach</h3><p class="mut">Finds the topics your real answers show need work, then serves lessons and fresh practice.</p></div></section>
+<h2 id="how" style="margin-top:44px">How it works</h2><div class="grid g3">
+<div class="step"><div class="num">1</div><div><b>Take a quiz</b><p class="mut">Choose a topic across cloud concepts, architecture and governance.</p></div></div>
+<div class="step"><div class="num">2</div><div><b>Learn from mistakes</b><p class="mut">Read why each answer is right, then see which topics need revision.</p></div></div>
+<div class="step"><div class="num">3</div><div><b>Plan and repeat</b><p class="mut">Build a revision schedule to your exam date and track progress.</p></div></div></div>
+<div class="disc">CloudPrep AI is an independent learning tool. It is not affiliated with or endorsed by Microsoft.</div></div>`}
+
+/* ---------- Overview ---------- */
+function vOverview(){
+  const A=att(),w=weak(),avg=A.length?Math.round(A.reduce((s,a)=>s+pct(a.score,a.total),0)/A.length):null,plan=Store.get("plan",null);
+  const next=plan&&plan.items.find(i=>!i.d);
+  return `<h1>Overview</h1><p class="mut">Your study snapshot, based only on quizzes you have completed.</p>
+  <div class="grid g3" style="margin-top:14px"><div class="card"><div class="stat">${A.length}</div>Quizzes completed</div>
+  <div class="card"><div class="stat">${avg===null?"–":avg+"%"}</div>Average score</div>
+  <div class="card"><div class="stat">${A.length?w.length:"–"}</div>Topics needing revision</div></div>
+  ${A.length?"":`<div class="card empty" style="margin-top:14px"><h3>Welcome! Start with your first quiz</h3><p class="mut">Your scores and weak spots will appear here after you answer some questions.</p><button class="btn" onclick="go('quiz')">Open Quiz Lab</button></div>`}
+  <h2>Next steps</h2><div class="grid g3">
+  <div class="card"><h3>Practise</h3><p class="mut">Take a quick quiz on any topic.</p><button class="btn sm" onclick="go('quiz')">Quiz Lab</button></div>
+  <div class="card"><h3>Revise</h3><p class="mut">${w.length?"Focus on: "+esc(w.map(k=>T[k].n).join(", "))+".":"See where you stand by topic."}</p><button class="btn sm" onclick="go('coach')">Weakness Coach</button></div>
+  <div class="card"><h3>Plan</h3><p class="mut">${next?"Next task: "+esc(next.t):"Create a schedule to your exam date."}</p><button class="btn sm" onclick="go('planner')">Study Planner</button></div></div>`;
+}
+
+/* ---------- Quiz Lab ---------- */
+function vQuiz(){
+  if(!qs){
+    if(rv)return vRevLesson();
+    const tp=opts.topic||"all";
+    return `<h1>Quiz Lab</h1><p class="mut">Original practice questions for AZ-900 beginners.</p><div class="card" style="margin-top:14px">
+    <label for="qt">Topic</label><select id="qt"><option value="all">All topics</option>${Object.keys(DOM).map(d=>`<optgroup label="${DOM[d]}">${Object.keys(T).filter(k=>T[k].d===d).map(k=>`<option value="${k}" ${k===tp?"selected":""}>${T[k].n}</option>`).join("")}</optgroup>`).join("")}</select>
+    <label for="qd">Difficulty</label><select id="qd"><option value="all">Any</option><option value="0">Beginner</option><option value="1">Intermediate</option></select>
+    <label for="qn">Number of questions</label><select id="qn">${[3,5,10,15].map(n=>`<option ${n===(opts.n||5)?"selected":""}>${n}</option>`).join("")}</select>
+    <div id="qerr"></div><p><button class="btn" onclick="beginQuiz()">Start quiz</button></p>
+    <p class="note">The bank holds ${Q.length} questions, so a quiz may be shorter than requested for narrow filters.</p></div>`;
+  }
+  if(qs.done)return quizResult();
+  const q=qs.items[qs.i],L="ABCD";
+  return `<p class="chip">${esc(T[q.t].n)} · ${DIF[q.df]}${KIND[qs.meta.kind]?" · "+KIND[qs.meta.kind]:""}</p><p class="note">Question ${qs.i+1} of ${qs.items.length}${qs.meta.kind==="mastery"?` · ${qs.meta.seen} of ${qs.items.length} appeared in earlier attempts`:""}</p><div class="bar"><i style="width:${100*qs.i/qs.items.length}%"></i></div>
+  <h2>${esc(q.q)}</h2>${q.o.map((o,i)=>{let c="opt";if(qs.checked)c+=i===q.a?" ok":i===qs.pick?" no":"";else if(i===qs.pick)c+=" sel";return `<button class="${c}" ${qs.checked?"disabled":""} onclick="pickOpt(${i})"><b>${L[i]}.</b> ${esc(o)}</button>`}).join("")}
+  ${qs.checked?`<div class="fb ${qs.pick===q.a?"ok":"no"}"><b>${qs.pick===q.a?"Correct!":"Not quite."}</b> ${esc(q.e)}${qs.pick===q.a?"":`<br>Right answer: <b>${esc(q.o[q.a])}</b>`}</div>
+  <button class="btn" onclick="nextQ()">${qs.i+1<qs.items.length?"Next question":"See results"}</button>`:`<button class="btn" ${qs.pick==null?"disabled":""} onclick="checkQ()">Check answer</button>`}`;
+}
+function beginQuiz(){
+  const t=$("#qt").value,d=$("#qd").value,n=+$("#qn").value,items=buildQuiz(t,d,n,opts.prefer);
+  if(!items.length){$("#qerr").innerHTML=`<div class="err">No questions match that topic and difficulty. Try “Any” difficulty.</div>`;return}
+  qs={items,i:0,pick:null,checked:false,res:[],meta:{t,d}};paint();
+}
+function pickOpt(i){if(!qs.checked){qs.pick=i;paint()}}
+function checkQ(){const q=qs.items[qs.i];qs.checked=true;qs.res.push({id:q.id,t:q.t,ok:qs.pick===q.a,pick:qs.pick});paint()}
+function nextQ(){
+  if(qs.i+1<qs.items.length){qs.i++;qs.pick=null;qs.checked=false}
+  else{qs.done=true;const sc=qs.res.filter(x=>x.ok).length;
+    const m=qs.meta,rec={v:2,kind:m.kind||"quiz",id:Date.now(),date:new Date().toISOString(),topic:m.t,diff:m.d,score:sc,total:qs.res.length,
+      answers:qs.res.map((x,j)=>{const q=qs.items[j];return{id:x.id,t:x.t,df:q.df,q:q.q,pick:q.o[x.pick],correct:q.o[q.a],ok:x.ok,c:Q[x.id][6]}})};
+    if(m.base)rec.base=m.base;
+    const bad=badRec(rec);
+    if(bad){qs.saved=false;qs.saveErr="This result failed validation ("+bad+") and was not saved."}
+    else{const all=raw();all.push(rec);qs.saved=Store.set("attempts",all);if(!qs.saved)qs.saveErr="Your result could not be saved in this browser (storage may be blocked), so it won’t appear in Progress."}}
+  paint();
+}
+function quizResult(){
+  const sc=qs.res.filter(x=>x.ok).length,tot=qs.res.length,p=pct(sc,tot);
+  return `<h1>${KIND_DONE[qs.meta.kind]||"Quiz complete"}</h1><div class="card"><div class="stat">${sc} / ${tot} (${p}%)</div><p class="mut">${p>=80?"Strong result. Keep revising to stay sharp.":p>=50?"A decent start. Review the explanations below.":"Good practice. Mistakes are where the learning happens."}</p>
+  ${qs.saved?"":`<div class="err">${esc(qs.saveErr||"This result was not saved.")}</div>`}</div>
+  ${loopNext()}<h2>Review</h2>${qs.items.map((q,i)=>{const r=qs.res[i];return `<div class="card" style="margin:8px 0"><span class="chip">${esc(T[q.t].n)}</span> <b>${r.ok?"✓ Correct":"✗ Missed"}</b><p>${esc(q.q)}</p><p class="note">Your answer: ${esc(q.o[r.pick])}${r.ok?"":" · Correct: "+esc(q.o[q.a])}</p><p class="note">${esc(q.e)}</p></div>`}).join("")}
+  <p><button class="btn" onclick="go('quiz')">New quiz</button> <button class="btn alt" onclick="go('coach')">Open Weakness Coach</button></p>`;
+}
+
+/* ---------- Study Buddy: chat, learning modes, curated fallback, optional AI (kept separate from the quiz engine) ---------- */
+const SRC_URL="https://learn.microsoft.com/en-us/certifications/resources/study-guides/az-900";
+const MODES={simple:["Explain Simply","Short, beginner-friendly explanations."],real:["Real-Life Example","Starts from a practical scenario."],test:["Test My Understanding","Answer a question first, then the explanation is revealed."]};
+const AI_RULES="You are the CloudPrep AI Study Buddy for beginners preparing for Microsoft Azure Fundamentals (AZ-900). Ground answers in the AZ-900 skill areas (cloud concepts; Azure architecture and services; Azure management and governance) and in official Microsoft Learn and Azure documentation. Never invent features, prices, limits or exam content; if unsure, say so in the caveat field. Use simple language. Analogies must use everyday African contexts (mobile money, hospitals, schools, online shops, electricity supply) and must be clearly simplified, never presented as how Azure works. Write an ORIGINAL knowledge check and never reproduce real exam questions. Reply with ONLY one JSON object (no markdown) with these keys: title (string), simple (string, 2 to 4 sentences), analogy (string), azureExample (string), realLife (string, a short practical scenario), terms (array of 2 to 4 objects, each with term and definition strings), check (object with question string, options array of exactly 4 strings, answerIndex integer 0 to 3, explanation string), topic (one of: models, benefits, regions, core, cost, governance), caveat (string, may be empty). If the question is not about cloud computing or Azure fundamentals, reply with a JSON object whose only keys are offTopic (true) and message (a short string).";
+// Curated lessons: l=label, tp=related quiz topic, k=match keywords, s=simple, a=analogy, e=Azure example, r=real-life scenario, t=terms, c=[question, options, correct index, explanation]
+const CUR=[
+{l:"Cloud computing and cloud models",tp:"models",k:"cloud computing|what is cloud|what is the cloud|benefits of cloud|public cloud|private cloud|hybrid|capex|opex|consumption",
+ s:"Cloud computing means using computing resources such as servers, storage, databases and software over the internet instead of owning and running them yourself. You usually pay only for what you use, so spending moves from big upfront purchases (CapEx) to ongoing usage costs (OpEx).",
+ a:"Think of prepaid electricity tokens. You don’t build a power station; you buy units when you need them and top up as your usage changes.",
+ e:"Hosting a website on Azure App Service and paying for the plan you choose, instead of buying and maintaining your own web server.",
+ r:"A Nairobi online shop expects a big sale. Rather than buying servers that sit idle afterwards, it rents capacity from a cloud provider for the busy period and pays for what it used.",
+ t:[["Consumption-based model","You pay for the resources you actually use."],["CapEx vs OpEx","CapEx is upfront spending on physical assets; OpEx is spending on services as you go."],["Hybrid cloud","A mix of on-premises (or private) resources and public cloud."]],
+ c:["A clinic stops buying its own servers and pays a monthly bill for the cloud services it uses. What has changed?",["Spending has shifted from capital expenditure to operational expenditure","Spending has shifted from operational to capital expenditure","The clinic now owns all the hardware","The clinic no longer needs to protect its data"],0,"Cloud services are usually billed as OpEx. The clinic still has to protect its own data, because security is shared between provider and customer."]},
+{l:"IaaS, PaaS and SaaS",tp:"models",k:"iaas|paas|saas|infrastructure as|platform as|software as|service model",
+ s:"IaaS rents you virtual infrastructure (like virtual machines) that you configure and maintain. PaaS gives you a managed platform to run your app without handling servers or the operating system. SaaS is finished software you simply use. From IaaS to SaaS, the provider manages more and you control less.",
+ a:"Getting to work: IaaS is renting a car (you drive, fuel and service it), PaaS is a ride-hailing trip (you choose the destination, the driver handles the car), SaaS is a scheduled bus (you just ride).",
+ e:"IaaS: Azure Virtual Machines. PaaS: Azure App Service. SaaS: Microsoft 365.",
+ r:"A school builds its own student-records app. On IaaS its staff must patch servers; on PaaS they only deploy the app; with a SaaS records product they just sign in and use it.",
+ t:[["IaaS","Infrastructure as a Service: you manage the OS, apps and data on rented infrastructure."],["PaaS","Platform as a Service: the provider manages infrastructure and runtime; you manage your app and data."],["SaaS","Software as a Service: complete software delivered over the internet."]],
+ c:["A school wants to run its own custom records app but not manage servers or the operating system. Which service model fits best?",["PaaS","IaaS","SaaS","Private cloud only"],0,"PaaS lets you deploy your own app while the provider manages the servers and operating system. IaaS would leave OS management to the school, and SaaS means using a finished product rather than running your own app."]},
+{l:"Regions and availability zones",tp:"regions",k:"region|availability zone|zone|datacenter|data center|latency",
+ s:"An Azure region is a geographic area with one or more datacenters. In regions that support them, availability zones are physically separate locations inside the region, each with independent power, cooling and networking, so spreading an app across zones protects against one datacenter failing. Many regions are also paired with another region to support disaster recovery.",
+ a:"A hospital group: a region is a city, and each availability zone is a separate hospital building with its own generator and water supply. If one building loses power, patients move to another in the same city.",
+ e:"Choose a region close to your users, such as one of Azure’s South Africa regions, and where supported spread virtual machines across zones. Check which regions support zones in Microsoft’s documentation.",
+ r:"A fintech serving customers in Kigali worries about two things: slow responses (so it picks a nearby region) and a datacenter outage (so it spreads the app across zones).",
+ t:[["Region","A set of datacenters deployed within a latency-defined area and connected by a regional network."],["Availability zone","A physically separate location within a region, available only in regions that support zones."],["Region pair","Two regions in the same geography that support disaster recovery planning."]],
+ c:["What does spreading an app across availability zones mainly protect against?",["The failure of a single datacenter location within a region","A change in your monthly price","Losing your subscription","Forgetting a password"],0,"Zones are separate locations inside one region, so one failing doesn’t take everything down. Zones don’t affect price or account access."]},
+{l:"Scalability and elasticity",tp:"benefits",k:"scalab|elastic|scale|autoscal|demand",
+ s:"Scalability is being able to handle more or less load by changing resources: scaling up or down changes the size of a resource, and scaling out or in changes how many instances you run. Elasticity is when that adjustment happens automatically as demand rises and falls, so you don’t pay for idle capacity.",
+ a:"A busy mobile-money kiosk brings in extra agents at month-end and sends them home when it’s quiet.",
+ e:"Azure autoscale can add virtual machine or App Service instances when CPU use is high and remove them when demand drops.",
+ r:"A Lagos ticketing site gets ten times its usual traffic when tickets go on sale. With autoscale it adds instances for the rush and removes them afterwards.",
+ t:[["Scale up/down (vertical)","Make a resource bigger or smaller, for example more CPU or memory."],["Scale out/in (horizontal)","Add or remove instances of a resource."],["Elasticity","Resources adjust automatically to match demand."]],
+ c:["An online shop’s app automatically adds instances during a flash sale and removes them afterwards. Which cloud benefit is this?",["Elasticity","Data residency","Manual provisioning","Fixed capacity"],0,"Elasticity is the automatic growing and shrinking of resources with demand. Fixed capacity and manual provisioning are the opposite."]},
+{l:"Shared responsibility",tp:"models",k:"shared responsibility|responsib",
+ s:"Security duties are split between Microsoft and the customer. Microsoft is always responsible for the physical datacenter, physical network and physical hosts. The customer is always responsible for their data, their accounts and identities, and their devices. Other duties, such as the operating system and network controls, shift toward the provider as you move from IaaS to PaaS to SaaS.",
+ a:"Renting a flat: the landlord secures the building, gate and roof, and you lock your own door and look after your belongings.",
+ e:"On an Azure virtual machine (IaaS) you patch the operating system. On Azure App Service (PaaS) Azure handles the OS, but you still secure your app, its data and who can access it.",
+ r:"A clinic uses a cloud patient-records app (SaaS). The vendor protects the datacenters and the software platform, but the clinic still decides which staff get accounts and keeps sign-ins strong.",
+ t:[["Shared responsibility model","Security tasks are divided between cloud provider and customer depending on the service type."],["Always the customer","Data, accounts and identities, and devices."],["Always the provider","Physical datacenter, physical network and physical hosts."]],
+ c:["A company uses a SaaS app. Who is still responsible for deciding which employees get accounts and access to the company’s data?",["The company (the customer)","The cloud provider alone","The internet service provider","Nobody, because SaaS handles it automatically"],0,"Accounts, identities and data always remain the customer’s responsibility, even with SaaS."]},
+{l:"Cloud pricing",tp:"cost",k:"pric|cost|billing|calculator|tco|budget|reservation|pay-as",
+ s:"Azure pricing is mostly consumption-based: cost depends on the service, its size and tier, the region, and how much or how long you use it. The Pricing Calculator estimates costs before you deploy, the TCO Calculator compares with on-premises, and Cost Management tracks spending and sets budgets. Reservations and tags can help save and allocate costs.",
+ a:"Like managing a mobile data bundle: you estimate what you’ll need, watch your balance, and set a low-balance warning so you aren’t surprised.",
+ e:"Create a budget in Microsoft Cost Management with an email alert at 80% of your monthly limit, and tag resources by team so costs can be grouped.",
+ r:"A school in Accra wants to run a test server. It estimates the monthly cost first, then sets a budget alert so a server forgotten over the holidays can’t quietly run up a big bill.",
+ t:[["Pricing calculator","Estimates the cost of Azure services you plan to use."],["TCO calculator","Compares on-premises costs with running the workload in Azure."],["Reservation","A discount in return for committing to a resource for one or three years."]],
+ c:["A team wants an email when its monthly Azure spending reaches 80% of a set amount. What should it configure?",["A budget with an alert in Cost Management","A resource lock","An availability zone","A region pair"],0,"Budgets in Cost Management can notify you as spending approaches a threshold. Locks, zones and region pairs don’t track spending."]},
+{l:"Security in Azure",tp:"governance",k:"secur|identity|entra|mfa|multifactor|multi-factor|authentic|defence|defense|zero trust|defender",
+ s:"Defence in depth protects resources in layers (physical, identity, perimeter, network, compute, application, data) so one failure doesn’t expose everything. Identity is central: Microsoft Entra ID provides cloud identity and access management, multifactor authentication (MFA) asks for more than a password, and role-based access control (RBAC) gives people only the permissions they need. Microsoft Defender for Cloud helps assess and improve your security posture.",
+ a:"A bank branch: a guard at the gate, an ID check at the counter, a vault inside, and cameras throughout. Mobile money is similar: a PIN plus a one-time code is two checks, not one.",
+ e:"Require MFA for administrators in Microsoft Entra ID, and give an auditor the Reader role with RBAC so they can view resources but not change them.",
+ r:"A mobile-money style app asks customers for a PIN and then a code sent to their phone. A criminal who guesses the PIN still can’t get in without the phone.",
+ t:[["Defence in depth","Layered security so a single failure doesn’t expose everything."],["MFA","Multifactor authentication: proving identity with more than one factor, such as a password and a phone code."],["Least privilege","Giving people only the access they need for their job."]],
+ c:["A login asks for a PIN and then a one-time code sent to the user’s phone. Which security idea is this?",["Multifactor authentication","Resource locking","Region pairing","Cost tagging"],0,"Using two or more kinds of proof, such as something you know plus something you have, is multifactor authentication."]},
+{l:"Governance in Azure",tp:"governance",k:"governance|policy|lock|rbac|tag|compliance|purview|management group",
+ s:"Governance is about organising and controlling resources. Azure Policy enforces rules and checks compliance, resource locks stop accidental changes or deletion, RBAC controls who can do what, and management groups, subscriptions, resource groups and tags organise resources. Microsoft Purview helps govern data across an organisation.",
+ a:"A school: the rulebook (Azure Policy) says what is allowed, a locked exam room (a lock) protects important papers, staff keys (RBAC) decide who can enter, and class folders (resource groups and tags) keep things organised.",
+ e:"Assign an Azure Policy that only allows resources in approved regions, and put a CanNotDelete lock on the production database’s resource group.",
+ r:"An NGO in Kampala lets volunteers view records but not edit them, and locks the donor database so nobody deletes it by mistake during a busy week.",
+ t:[["Azure Policy","Creates and enforces rules over resources and reports compliance."],["Resource lock","Prevents accidental deletion (CanNotDelete) or modification (ReadOnly)."],["Management group","A container above subscriptions for applying governance across many of them."]],
+ c:["Which feature stops an administrator accidentally deleting a production database while still letting people use it?",["A CanNotDelete resource lock","A tag","A region pair","The Pricing Calculator"],0,"A CanNotDelete lock blocks deletion but still allows reading and modifying. Tags only label, and region pairs and the calculator don’t protect resources."]},
+{l:"Azure Well-Architected Framework",tp:"benefits",k:"well-architected|well architected|waf|pillar",
+ n:"Supplementary: I couldn’t confirm this as an explicit item in the AZ-900 skills outline, so check the current study guide to see how much it matters for your exam date.",
+ s:"The Azure Well-Architected Framework is Microsoft guidance for designing good cloud workloads, organised into five pillars: Reliability, Security, Cost Optimization, Operational Excellence and Performance Efficiency. Designing well means balancing trade-offs, such as paying more for higher availability.",
+ a:"Planning a clinic building: it must stay open when something fails (reliability), keep records private (security), fit the budget (cost), run smoothly day to day (operations) and have enough rooms for patient numbers (performance).",
+ e:"Use Microsoft’s Azure Well-Architected Review to assess a workload against the pillars, then act on a recommendation such as adding zone redundancy for reliability.",
+ r:"A fintech launching a payments app weighs the pillars: extra zones improve reliability but cost more, so it decides how much downtime it can accept before spending.",
+ t:[["Pillar","One of the five quality areas the framework uses to assess a workload."],["Workload","An application or set of resources that delivers business value."],["Trade-off","Improving one quality, such as reliability, can raise cost or complexity."]],
+ c:["A team deploys a second copy of its app in another zone so it survives a datacenter failure. Which pillar is this mainly about?",["Reliability","Cost Optimization","Operational Excellence","Performance Efficiency"],0,"Surviving failures is about reliability. It may raise cost, which shows the trade-offs the framework asks you to weigh."]},
+{l:"Azure compute (VMs, App Service, Functions)",tp:"core",k:"compute|virtual machine|vm|app service|function|container|serverless|kubernetes",
+ s:"Azure compute services run your code. Virtual Machines give you full control of the operating system (IaaS). Azure App Service hosts web apps and APIs without server management (PaaS). Azure Functions runs small pieces of code in response to events (serverless) and is typically billed by usage. Containers, for example through Azure Container Instances or Azure Kubernetes Service, package an app with everything it needs to run.",
+ a:"Catering a wedding feast in Kisumu: a Virtual Machine is renting a whole kitchen, App Service is renting a station in a shared kitchen, and Functions is ordering a single dish only when a guest asks for it.",
+ e:"Host a school’s student portal on App Service, and use an Azure Function to send a notification whenever new results are uploaded.",
+ r:"An online shop in Nairobi runs its website on App Service and uses a Function to resize each product photo the moment a seller uploads it.",
+ t:[["Virtual machine","A computer you configure and manage yourself, running in Azure (IaaS)."],["Serverless","You run code without managing servers, and usage-based billing applies."],["Container","A lightweight package of an app and its dependencies."]],
+ c:["A developer wants code to run only when a customer uploads a photo, without managing any servers. Which service fits best?",["Azure Functions","Azure Virtual Machines","A private data centre","Azure DNS"],0,"Azure Functions runs event-driven code without server management. A virtual machine would keep running (and need managing) whether or not photos arrive."]},
+{l:"Azure storage (Blob, files, redundancy)",tp:"core",k:"storage|blob|disk|file share|redundan|lrs|grs|archive tier|access tier",
+ s:"Azure Storage keeps your data in a storage account. Blob Storage holds unstructured data such as images, video and backups. Azure Files provides file shares you can use like a network drive. Redundancy copies your data so it survives failures: locally redundant (LRS) keeps copies in one datacenter, zone-redundant (ZRS) spreads them across zones, and geo-redundant (GRS) also keeps a copy in a second region. Access tiers such as hot, cool and archive trade storage cost against access speed.",
+ a:"A hospital records room: everyday files stay on the front shelves (hot), old records go to a cheaper basement archive that is slower to fetch (archive), and photocopies are kept in another building in case of fire (redundancy).",
+ e:"Store product photos in Blob Storage, move old backups to the archive tier to save money, and choose geo-redundant storage if the data must survive a regional disaster.",
+ r:"A Nairobi hospital keeps recent scans quickly accessible, moves older ones to a cheaper tier, and keeps a copy in a second region.",
+ t:[["Blob storage","Object storage for unstructured data such as images, video and backups."],["Access tier","Hot, cool or archive: trading storage cost against access speed."],["Redundancy","Keeping copies of data (LRS, ZRS, GRS) so it survives failures."]],
+ c:["A hospital wants old patient scans stored at the lowest cost, accepting slower retrieval. Which blob access tier fits best?",["Archive","Hot","Region pair","Resource lock"],0,"The archive tier has the lowest storage cost but the slowest and costliest retrieval. Hot is meant for frequently used data."]},
+{l:"Azure networking (VNets, DNS, VPN)",tp:"core",k:"network|vnet|dns|vpn|expressroute|subnet|firewall|load balanc",
+ s:"An Azure Virtual Network (VNet) is your private network in Azure, where resources such as virtual machines communicate securely and can be divided into subnets. Network security groups allow or deny traffic. A VPN gateway links your office or site to Azure over the internet, while ExpressRoute provides a private connection that doesn’t use the public internet. Azure DNS hosts your domain names.",
+ a:"A school campus: the campus network connects classrooms privately, the gate guard checks who may enter (security rules), a secure tunnel links the school to the district office (VPN), and the phone directory turns names into extensions (DNS).",
+ e:"Put a web server and a database in one VNet, use a network security group to allow only web traffic in, and connect the head office with a VPN gateway.",
+ r:"A chain of shops in Uganda connects each branch’s till system to Azure over a VPN so stock data syncs privately.",
+ t:[["Virtual network (VNet)","Your private network in Azure for resources to communicate securely."],["Network security group","Rules that allow or deny network traffic to resources."],["VPN gateway / ExpressRoute","Ways to connect on-premises networks to Azure: over the internet (VPN) or a private connection (ExpressRoute)."]],
+ c:["A company wants its Azure resources to talk to each other privately, with traffic filtered by allow and deny rules. What does it use?",["A virtual network and network security groups","Blob Storage and tags","A resource lock and a budget","A region pair and a reservation"],0,"A virtual network provides the private network, and network security groups filter traffic. The other options do different jobs."]}
+];
+let SAMPLE=null;
+try{if(window.claude&&window.claude.use)window.claude.use("sample").then(f=>{SAMPLE=f;if(view==="buddy")paint()}).catch(()=>{})}catch(e){}
+const aiSource=()=>CONFIG.aiEndpoint?"server":SAMPLE?"claude":"none";
+function B(){if(!bd.msgs)bd={mode:"simple",msgs:[],busy:0,draft:"",n:0};return bd}
+const mById=id=>B().msgs.find(m=>m.id===id);
+
+function curatedFor(q){
+  const l=q.toLowerCase();let best=null,sc=0;
+  CUR.forEach(c=>{const n=c.k.split("|").reduce((a,k)=>a+(l.includes(k)?k.length:0),0);if(n>sc){sc=n;best=c}});
+  if(!best)return null;
+  const idx=shuf(best.c[1].map((_,i)=>i));
+  return{src:"curated",title:best.l,simple:best.s,analogy:best.a,azureExample:best.e,realLife:best.r,terms:best.t.map(x=>({term:x[0],definition:x[1]})),
+    check:{question:best.c[0],options:idx.map(i=>best.c[1][i]),answerIndex:idx.indexOf(best.c[2]),explanation:best.c[3]},topic:best.tp,caveat:"",n:best.n||""};
+}
+function normAI(j){ // validates AI output; nothing malformed is ever shown
+  if(j&&j.offTopic===true)return{off:true,msg:typeof j.message==="string"?j.message.slice(0,300):""};
+  const str=x=>typeof x==="string"&&x.trim().length>0,c=j&&j.check;
+  const ok=j&&["title","simple","analogy","azureExample","realLife"].every(k=>str(j[k]))&&Array.isArray(j.terms)&&j.terms.length>0&&j.terms.every(t=>t&&str(t.term)&&str(t.definition))
+    &&c&&str(c.question)&&Array.isArray(c.options)&&c.options.length===4&&c.options.every(str)&&Number.isInteger(c.answerIndex)&&c.answerIndex>=0&&c.answerIndex<4&&str(c.explanation);
+  if(!ok)throw{code:"invalid_shape"};
+  const cut=(x,n)=>String(x).slice(0,n);
+  return{src:"ai",title:cut(j.title,120),simple:cut(j.simple,1200),analogy:cut(j.analogy,800),azureExample:cut(j.azureExample,800),realLife:cut(j.realLife,800),
+    terms:j.terms.slice(0,5).map(t=>({term:cut(t.term,80),definition:cut(t.definition,300)})),
+    check:{question:cut(c.question,400),options:c.options.map(o=>cut(o,200)),answerIndex:c.answerIndex,explanation:cut(c.explanation,600)},
+    topic:T[j.topic]?j.topic:null,caveat:typeof j.caveat==="string"?cut(j.caveat,300):"",n:""};
+}
+async function viaServer(q,ctl){
+  const t=setTimeout(()=>ctl.abort("timeout"),60000);
+  try{
+    let r;
+    try{r=await fetch(CONFIG.aiEndpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:q}),signal:ctl.signal})}
+    catch(e){throw{code:ctl.signal.aborted?(ctl.signal.reason==="timeout"?"timeout":"cancelled"):"network"}}
+    if(!r.ok){let d={};try{d=await r.json()}catch(_){}const E={not_configured:"not_configured",rate_limited:"rate_limited",upstream_error:"provider_unavailable",upstream_unreachable:"provider_unavailable",invalid_model_output:"invalid_json"};throw{code:E[d.error]||"http",status:r.status}}
+    try{return await r.json()}catch(_){throw{code:"bad_response"}}
+  }finally{clearTimeout(t)}
+}
+async function viaClaude(q,ctl){
+  const prior=B().msgs.filter(x=>x.role==="u").slice(-4,-1).map(x=>x.text);
+  const prompt=AI_RULES+(prior.length?"\nEarlier in this session the learner asked: "+prior.join(" | ")+"\n":"\n")+"Learner question: "+q;
+  try{return await SAMPLE.json(prompt,{cache:false,signal:ctl.signal})}catch(e){throw{code:(e&&e.code)||"upstream_error"}}
+}
+function errText(e){
+  const c=e&&e.code,M={not_configured:"The AI server is reachable but has no API key configured.",network:"Couldn’t reach the AI server. It may be offline, or blocked by CORS.",timeout:"The AI request timed out.",cancelled:"The request was stopped.",
+    http:"The AI server returned an error"+(e&&e.status?" (status "+e.status+")":"")+".",bad_response:"The AI server’s reply couldn’t be read.",invalid_json:"The AI replied in an unexpected format.",provider_unavailable:"The AI provider is unavailable or returned an error.",invalid_shape:"The AI’s answer was incomplete or malformed, so it was discarded.",
+    not_granted:"Permission to use Claude for answers wasn’t given in this view. Reload the page to be asked again.",rate_limited:"Too many AI requests in a short time. Wait a moment, then retry.",sampling_disabled:"AI answers are turned off for this page.",capability_disabled:"AI answers are turned off for this page."};
+  return (M[c]||"The AI request failed"+(c?" ("+c+")":"")+".")+" Nothing was generated.";
+}
+async function run(m){
+  const b=B();b.busy++;m.kind="load";m.err="";m.src=aiSource();b.scroll=true;
+  const ctl=new AbortController();m.ctl=ctl;paint();
+  try{
+    if(m.src==="none"){
+      const r=curatedFor(m.q);
+      if(r){m.r=r;m.kind="res"}else{m.kind="info";m.text="I don’t have a curated explanation for that yet, and AI isn’t configured, so I won’t guess. Try one of these topics:"}
+    }else{
+      const r=normAI(m.src==="server"?await viaServer(m.q,ctl):await viaClaude(m.q,ctl));
+      if(r.off){m.kind="info";m.text=r.msg||"That doesn’t look like a cloud or Azure fundamentals question. Try one of these topics:"}else{m.r=r;m.kind="res"}
+    }
+  }catch(e){m.kind="err";m.err=errText(e);m.retry=!["not_granted","sampling_disabled","capability_disabled"].includes(e&&e.code);m.cur=!!curatedFor(m.q)}
+  finally{b.busy--;m.ctl=null;b.scroll=true;paint()}
+}
+function send(text){
+  const b=B();text=String(text||"").trim().slice(0,300);if(b.busy)return;
+  if(text.length<3){b.formErr="Please type at least 3 characters.";paint();return}
+  b.formErr="";b.draft="";b.refocus=true;b.msgs.push({id:++b.n,role:"u",text});
+  const m={id:++b.n,role:"b",kind:"load",q:text};b.msgs.push(m);return run(m);
+}
+const sendForm=()=>send($("#bq").value);
+const setMode=x=>{B().mode=x;paint()};
+const retryAI=id=>{if(!B().busy)return run(mById(id))};
+const stopAI=id=>{const m=mById(id);if(m&&m.ctl)m.ctl.abort("user")};
+const useCurated=id=>{const m=mById(id);m.r=curatedFor(m.q);m.kind="res";paint()};
+const ckSel=(id,i)=>{const m=mById(id);if(m.picked==null){m.sel=i;paint()}};
+const ckSubmit=id=>{const m=mById(id);if(m.picked==null&&m.sel!=null){m.picked=m.sel;m.revealed=true;paint()}};
+const reveal=id=>{mById(id).revealed=true;paint()};
+const clearChat=()=>{if(!B().busy){bd={};paint()}};
+function flagMsg(id){
+  const m=mById(id);let f=Store.get("flags",[]);if(!Array.isArray(f))f=[];
+  if(!f.some(x=>x.label===m.r.title))f.push({k:m.r.topic,label:m.r.title,date:new Date().toISOString()});
+  if(Store.set("flags",f))m.flagged=true;else B().formErr="Couldn’t save in this browser, so it wasn’t sent to the Coach.";
+  paint();
+}
+function quizTopic(k){ // launches a real, recorded quiz on the topic just studied
+  const items=buildQuiz(k,"all",5,false,null);if(!items.length)return;
+  qs={items,i:0,pick:null,checked:false,res:[],meta:{t:k,d:"all",kind:"quiz"}};rv=null;go("quiz",{keep:true});
+}
+function buddyTopic(k){const c=CUR.find(x=>x.tp===k);return send(c?c.l:T[k].n)}
+function buddyAfter(){
+  const b=B();
+  if(b.scroll){const e=document.getElementById("end");if(e&&e.scrollIntoView)e.scrollIntoView({block:"end"});b.scroll=false}
+  if(b.refocus&&!b.busy){const q=$("#bq");if(q&&q.focus)q.focus();b.refocus=false}
+}
+const chipsHtml=()=>CUR.map((c,i)=>`<button class="btn sm alt" style="margin:3px" onclick="send(CUR[${i}].l)">${esc(c.l)}</button>`).join("");
+function recHtml(){
+  const w=weak();
+  if(!w.length)return att().length?`<p class="note">No topic is flagged from your quiz results right now, so there are no personalised suggestions yet.</p>`:`<p class="note">Take a quiz and suggestions based on your results will appear here.</p>`;
+  const ids=[...new Set(w.flatMap(k=>CUR.map((c,i)=>c.tp===k?i:-1).filter(i=>i>=0)))];
+  return `<p><b>Suggested from your quiz results</b></p><p class="note">Topics where you scored under ${GP}% with at least ${MIN} recorded answers.</p><p>${ids.map(i=>`<button class="btn sm" style="margin:3px" onclick="send(CUR[${i}].l)">${esc(CUR[i].l)}</button>`).join("")}</p>`;
+}
+function checkHtml(m){
+  const c=m.r.check,done=m.picked!=null;
+  return `<div style="margin:10px 0"><p><b>Knowledge check</b><br>${esc(c.question)}</p>${c.options.map((o,i)=>`<button class="opt ${done?(i===c.answerIndex?"ok":i===m.picked?"no":""):i===m.sel?"sel":""}" ${done?"disabled":""} aria-pressed="${!done&&i===m.sel}" onclick="ckSel(${m.id},${i})"><b>${"ABCD"[i]}.</b> ${esc(o)}</button>`).join("")}
+  ${done?`<div class="fb ${m.picked===c.answerIndex?"ok":"no"}" role="status"><b>${m.picked===c.answerIndex?"Correct!":"Not quite."}</b> The answer is <b>${esc(c.options[c.answerIndex])}</b>. ${esc(c.explanation)}</div><p class="note">Study Buddy checks aren’t recorded in Progress. Use Quiz Lab for tracked practice.</p>`:`<button class="btn sm" ${m.sel==null?"disabled":""} onclick="ckSubmit(${m.id})">Submit answer</button>`}</div>`;
+}
+function resHtml(m){
+  const r=m.r,mode=B().mode,test=mode==="test",hidden=test&&m.picked==null&&!m.revealed;
+  const sec=(t,x)=>`<p><b>${t}</b><br>${esc(x)}</p>`;
+  const P={sim:sec("Plain-language explanation",r.simple),
+    ana:`<p><b>Analogy</b> <span class="note">(simplified, not how Azure actually works)</span><br>${esc(r.analogy)}</p>`,
+    azu:sec("Azure example",r.azureExample),rl:sec("Real-life scenario",r.realLife),
+    trm:`<details ${mode==="simple"?"":"open"}><summary><b>Key terms</b></summary><ul>${r.terms.map(t=>`<li><b>${esc(t.term)}</b>: ${esc(t.definition)}</li>`).join("")}</ul></details>`,chk:checkHtml(m)};
+  const order=mode==="real"?["rl","ana","azu","sim","trm","chk"]:test?["chk"].concat(hidden?[]:["sim","ana","azu","trm"]):["sim","ana","azu","trm","chk"];
+  return `<span class="chip">${r.src==="ai"?"AI-generated · verify with Microsoft Learn":"Curated explanation · not AI"}</span><h3 style="margin-top:8px">${esc(r.title)}</h3>
+  ${hidden?`<p class="note">Test My Understanding: choose and submit your answer first, then the explanation is revealed.</p>`:""}${order.map(k=>P[k]).join("")}
+  ${hidden?`<button class="btn sm alt" onclick="reveal(${m.id})">Skip and reveal the explanation</button>`:""}
+  ${r.caveat?`<p class="note">Note: ${esc(r.caveat)}</p>`:""}${r.n?`<p class="note">${esc(r.n)}</p>`:""}
+  ${r.topic?`<div class="row" style="flex-wrap:wrap;margin-top:12px"><button class="btn sm" ${m.flagged?"disabled":""} onclick="flagMsg(${m.id})">${m.flagged?"Sent to Weakness Coach ✓":"Send to Weakness Coach"}</button><button class="btn sm alt" onclick="startRevision('${r.topic}')">Targeted practice: ${esc(T[r.topic].n)}</button><button class="btn sm alt" onclick="quizTopic('${r.topic}')">Quiz me: ${esc(T[r.topic].n)}</button></div>`:""}
+  <p class="note">Check details against the <a href="${SRC_URL}" target="_blank" rel="noopener">official AZ-900 study guide</a> on Microsoft Learn.</p>`;
+}
+function msgHtml(m){
+  if(m.role==="u")return `<div style="display:flex;justify-content:flex-end;margin:10px 0"><div class="card" style="background:var(--acs);max-width:90%"><b class="note">You</b><p>${esc(m.text)}</p></div></div>`;
+  let h;
+  if(m.kind==="load")h=m.src==="none"?`<p role="status">Finding a curated explanation…</p>`:`<p role="status">⏳ Thinking… AI answers can take up to a minute.</p><button class="btn sm alt" onclick="stopAI(${m.id})">Stop</button>`;
+  else if(m.kind==="err")h=`<div class="err" role="alert">${esc(m.err)}</div><p>${m.retry?`<button class="btn sm" onclick="retryAI(${m.id})">Retry</button> `:""}${m.cur?`<button class="btn sm alt" onclick="useCurated(${m.id})">Show the curated explanation instead</button>`:""}</p>`;
+  else if(m.kind==="info")h=`<p>${esc(m.text)}</p><p>${chipsHtml()}</p>`;
+  else h=resHtml(m);
+  return `<div class="card" style="margin:10px 0"><b class="note">Study Buddy</b>${h}</div>`;
+}
+function vBuddy(){
+  const b=B(),src=aiSource();
+  const status={server:"AI answers come from your configured server.",claude:"AI answers can be generated through your Claude account. You’ll be asked for permission, and it uses your Claude usage.",none:"AI isn’t configured here, so you’ll get clearly labelled curated explanations for the suggested topics, not a chatbot."}[src];
+  return `<h1>AI Study Buddy</h1><p class="mut">Ask about a cloud or Azure fundamentals idea.</p>
+  <div class="card" style="margin-top:14px"><div role="group" aria-label="Learning mode">${Object.keys(MODES).map(k=>`<button class="btn sm ${b.mode===k?"":"alt"}" style="margin:3px" aria-pressed="${b.mode===k}" onclick="setMode('${k}')">${MODES[k][0]}</button>`).join("")}</div>
+  <p class="note" style="margin-top:8px"><b>${MODES[b.mode][0]}:</b> ${MODES[b.mode][1]}</p><p class="note">${status}</p></div>
+  <div role="log" aria-live="polite" aria-label="Conversation">${b.msgs.map(msgHtml).join("")||`<div class="card empty" style="margin:12px 0"><h3>Ask your first question</h3><p class="mut">Pick a suggested topic below or type your own question.</p></div>`}<div id="end"></div></div>
+  <details ${b.msgs.length?"":"open"} style="margin:12px 0"><summary><b>Suggested topics</b></summary>${recHtml()}<p>${chipsHtml()}</p></details>
+  <div class="chat-in">${b.formErr?`<div class="err" role="alert">${esc(b.formErr)}</div>`:""}<label for="bq">Ask Study Buddy</label>
+  <textarea id="bq" rows="2" maxlength="300" placeholder="e.g. What is the difference between scaling up and scaling out?" oninput="B().draft=this.value" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendForm()}">${esc(b.draft)}</textarea>
+  <p style="margin-top:8px"><button class="btn" ${b.busy?"disabled":""} onclick="sendForm()">${b.busy?"Working…":"Send"}</button> ${b.msgs.length?`<button class="btn alt" ${b.busy?"disabled":""} onclick="clearChat()">Clear conversation</button>`:""}</p></div>`;
+}
+function flagsCard(){
+  const f=Store.get("flags",[]);if(!Array.isArray(f)||!f.length)return"";
+  return `<div class="card" style="margin:12px 0"><h3>Concepts you flagged as difficult</h3><p class="note">You flagged these in Study Buddy. They’re your own flags, not measured performance.</p>${f.map((x,i)=>`<div class="row" style="flex-wrap:wrap"><span style="flex:1">${esc(x.label)}${T[x.k]?` <span class="chip">${esc(T[x.k].n)}</span>`:""}</span>${T[x.k]?`<button class="btn sm" onclick="startRevision('${x.k}')">Practise</button>`:""}<button class="btn sm alt" onclick="unflag(${i})" aria-label="Remove flag">✕</button></div>`).join("")}</div>`;
+}
+function unflag(i){const f=Store.get("flags",[]);f.splice(i,1);Store.set("flags",f);paint()}
+
+/* ---------- Weakness Coach and the revision -> mastery loop (uses only recorded answers) ---------- */
+function vCoach(){
+  const A=att(),bad=unreadable();
+  const warn=(storeOk()?"":`<div class="err">Browser storage is unavailable here, so quiz results can’t be saved or analysed.</div>`)+(bad?`<div class="err">${bad} saved record${bad>1?"s":""} couldn’t be read and ${bad>1?"were":"was"} ignored (not deleted).</div>`:"");
+  if(!A.length)return `<h1>Weakness Coach</h1>${warn}${flagsCard()}<div class="card empty" style="margin-top:14px"><h3>No quiz data yet</h3><p class="mut">The Coach only analyses answers you have actually given, and it won’t guess. Complete a quiz and your topic-by-topic strengths and gaps will appear here.</p><button class="btn" onclick="go('quiz')">Take your first quiz</button></div>`;
+  const s=tstats(),keys=Object.keys(T),w=weak(),thin=keys.filter(k=>["none","few"].includes(status(k,s)));
+  return `<h1>Weakness Coach</h1><p class="mut">Built only from your ${A.length} recorded quiz${A.length>1?"zes":""}. A topic is flagged when you have at least ${MIN} answers there and under ${GP}% correct. With fewer answers we say “not enough data” instead of guessing. Revision practice answers aren’t used here.</p>${warn}${flagsCard()}
+  <h2>${w.length?"Topics needing revision":"No topic is flagged right now"}</h2>
+  ${w.length?w.map(coachCard).join(""):`<div class="card"><p>${thin.length?"No topic with enough answers is below "+GP+"%, but "+thin.length+" topic"+(thin.length>1?"s don’t":" doesn’t")+" have enough data yet. That’s an incomplete picture, not a clean bill of health.":"Every topic is at or above "+GP+"% so far. Keep practising to see whether that holds."}</p></div>`}
+  <h2>All topics</h2>${keys.map(k=>topicRow(k,s)).join("")}`;
+}
+function topicRow(k,s){
+  const x=s[k],st=status(k,s),lm=lastMastery(k);
+  const lab={none:"Not practised yet",few:`Not enough data (${x.t} of ${MIN} answers needed)`,needs:`Needs revision · ${pct(x.c,x.t)}% (${x.c}/${x.t})`,ok:`${pct(x.c,x.t)}% (${x.c}/${x.t})${x.t<6?" · few answers so far":""}`}[st];
+  return `<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><span>${T[k].n}</span><span class="note">${lab}${lm?` · last mastery check ${lm.score}/${lm.total}`:""}</span></div><div class="bar"><i class="${st==="needs"?"w":""}" style="width:${pct(x.c,x.t)}%"></i></div></div>`;
+}
+function coachCard(k){
+  const s=tstats()[k],m=missedBy(k),cs=Object.keys(m).sort((a,b)=>m[b].n-m[a].n),lm=lastMastery(k),p=pct(s.c,s.t),miss=s.t-s.c;
+  return `<div class="card" style="margin:10px 0"><h3>${T[k].n} <span class="chip">${p}% · ${s.c}/${s.t} correct</span></h3>
+  <p class="note"><b>Why this is recommended:</b> you answered ${s.c} of ${s.t} questions correctly (${p}%), below the ${GP}% target${s.t<6?", although that is still a small sample":""}. ${cs.length?`Your ${miss} missed answer${miss>1?"s":""} point to ${cs.map(esc).join(", ")}, so the revision starts with those ideas.`:""}</p>
+  ${cs.length?`<p><b>Concepts to revisit</b></p><ul>${cs.map(c=>`<li><b>${esc(c)}</b>${m[c].n>1?` (missed ${m[c].n} times)`:""}: ${esc(m[c].e)}</li>`).join("")}</ul>`:""}
+  <p class="note"><b>Recommended lesson and practice:</b> a short lesson on ${esc(T[k].n)}, then new questions you haven’t answered wrongly before.</p>
+  ${lm?`<p class="note">Last mastery check: ${lm.score}/${lm.total} on ${new Date(lm.date).toLocaleDateString()}.</p>`:""}
+  <button class="btn sm" onclick="startRevision('${k}')">Start revision session</button> <button class="btn sm alt" onclick="go('buddy');buddyTopic('${k}')">Ask Study Buddy</button></div>`;
+}
+function startRevision(k){
+  const seen=seenIds(),pool=buildQuiz(k,"all",99,false,missedIds()).sort((a,b)=>seen.has(a.id)-seen.has(b.id));
+  rv={k,pool:pool.slice(0,4)};qs=null;go("quiz",{keep:true});
+}
+function vRevLesson(){
+  const k=rv.k,t=T[k],m=missedBy(k),cs=Object.keys(m),n=rv.pool.length;
+  return `<p class="chip">Revision session</p><h1>${t.n}</h1>
+  <div class="card"><h3>Step 1: Lesson</h3><p>${esc(t.l)}</p><p><b>Analogy:</b> ${esc(t.a)}</p><p><b>African example:</b> ${esc(t.af)}</p></div>
+  ${cs.length?`<div class="card" style="margin-top:10px"><h3>Concepts you missed</h3><ul>${cs.map(c=>`<li><b>${esc(c)}</b>: ${esc(m[c].e)}</li>`).join("")}</ul></div>`:""}
+  <div class="card" style="margin-top:10px"><h3>Step 2: New practice</h3>${n?`<p>${n} question${n>1?"s":""} you haven’t answered incorrectly before.${n<3?" The bank is limited for this topic, so this session is short.":""}</p><button class="btn" onclick="startPractice()">Start practice</button>`:`<div class="err">No new questions are left for this topic: every available one is a question you previously missed. Re-read the lesson above or ask Study Buddy. More questions would need to be added to the bank.</div>`}</div>
+  <p style="margin-top:10px"><button class="btn sm alt" onclick="go('coach')">Back to Coach</button></p>`;
+}
+function startPractice(){
+  const items=rv.pool;if(!items.length)return;
+  lastRev={k:rv.k,ids:new Set(items.map(x=>x.id))};
+  qs={items,i:0,pick:null,checked:false,res:[],meta:{t:rv.k,d:"all",kind:"revision"}};paint();
+}
+function startMastery(k){
+  const seen=seenIds(),rev=lastRev&&lastRev.k===k?lastRev.ids:new Set();
+  const items=buildQuiz(k,"all",99,false,null).sort((a,b)=>rev.has(a.id)-rev.has(b.id)).slice(0,5);
+  if(!items.length){go("quiz");return}
+  qs={items,i:0,pick:null,checked:false,res:[],meta:{t:k,d:"all",kind:"mastery",base:{...tstats()[k]},seen:items.filter(x=>seen.has(x.id)).length}};
+  rv=null;go("quiz",{keep:true});
+}
+function loopNext(){
+  const m=qs.meta,k=m.t;
+  if(m.kind==="revision")return `<div class="card" style="margin:12px 0"><h3>Next: check what stuck</h3><p>Your practice answers are recorded, but not counted in your topic accuracy, because you had just read the lesson. A fresh mastery check gives a fairer picture.</p><button class="btn sm" onclick="startMastery('${k}')">Take a mastery check on ${esc(T[k].n)}</button></div>`;
+  if(m.kind==="mastery")return cmpCard();
+  const w=weak();
+  return w.length?`<div class="card" style="margin:12px 0"><h3>Recommended next step</h3><p class="mut">From your recorded answers, ${w.map(x=>esc(T[x].n)).join(", ")} ${w.length>1?"are":"is"} below ${GP}%.</p>${w.slice(0,3).map(x=>`<button class="btn sm" style="margin:3px" onclick="startRevision('${x}')">Revise ${esc(T[x].n)}</button>`).join("")}</div>`:"";
+}
+function cmpCard(){
+  const m=qs.meta,k=m.t,b=m.base,sc=qs.res.filter(x=>x.ok).length,tot=qs.res.length,np=pct(sc,tot);
+  let line;
+  if(!b||!b.t)line="You had no earlier recorded answers on this topic, so there is nothing to compare against.";
+  else{const bp=pct(b.c,b.t),d=np-bp;line=`Before: <b>${bp}%</b> (${b.c}/${b.t} answers). This check: <b>${np}%</b> (${sc}/${tot}). Change: <b>${d>0?"+":""}${d} percentage points</b>, which is ${Math.abs(d)<10?"about the same":d>0?"higher":"lower"}.`}
+  const now=tstats()[k];
+  return `<div class="card" style="margin:12px 0"><h3>Mastery check: before vs now</h3><p>${line}</p>${qs.saved?`<p>Combined accuracy on this topic is now <b>${pct(now.c,now.t)}%</b> across ${now.t} recorded answers.</p>`:""}
+  <p class="note">This is one short quiz of ${tot} question${tot>1?"s":""}${b&&b.t?`, compared with ${b.t} earlier answer${b.t>1?"s":""}`:""}, so the change can easily be down to luck and does not show mastery. ${m.seen} of ${tot} questions had appeared in earlier attempts, which can lift a score through recall rather than understanding. Look for steady results across several quizzes.</p></div>`;
+}
+
+/* ---------- Study Planner ---------- */
+function vPlanner(){
+  const p=Store.get("plan",null);
+  const form=`<div class="card" style="margin-top:14px"><label for="pd">Exam date</label><input type="date" id="pd" value="${p?esc(p.date):""}">
+  <label for="ph">Study hours per week</label><input type="number" id="ph" min="1" max="40" value="${p?p.hrs:5}">
+  <label>Topics you find difficult</label>${Object.keys(T).map(k=>`<label style="font-weight:400;margin:4px 0"><input type="checkbox" class="pk" value="${k}" ${p&&p.hard.includes(k)?"checked":""}> ${T[k].n}</label>`).join("")}
+  <div id="perr"></div><button class="btn" style="margin-top:10px" onclick="makePlan()">${p?"Regenerate schedule":"Generate schedule"}</button>${p?`<p class="note">Regenerating replaces your current schedule and its edits.</p>`:""}</div>`;
+  if(!p)return `<h1>Study Planner</h1><p class="mut">Tell us when your exam is and we’ll draft a schedule you can edit.</p>${form}`;
+  const wks=[...new Set(p.items.map(i=>i.w))];
+  return `<h1>Study Planner</h1><p class="mut">${p.wks} week${p.wks>1?"s":""} to go. Edit any task, tick it off, or add your own.</p>
+  ${wks.map(w=>`<div class="card" style="margin:10px 0"><h3>Week ${w}</h3>${p.items.map((it,idx)=>it.w!==w?"":`<div class="row"><input type="checkbox" ${it.d?"checked":""} onchange="pEdit(${idx},'d',this.checked)" aria-label="Done"><input type="text" value="${esc(it.t)}" maxlength="140" onchange="pEdit(${idx},'t',this.value)" aria-label="Task"><button class="btn sm alt" onclick="pDel(${idx})" aria-label="Delete">✕</button></div>`).join("")}<button class="btn sm alt" onclick="pAdd(${w})">+ Add task</button></div>`).join("")}
+  <h2>Change your inputs</h2>${form}`;
+}
+function makePlan(){
+  const date=$("#pd").value,hrs=+$("#ph").value,hard=[...document.querySelectorAll(".pk:checked")].map(x=>x.value),e=$("#perr");
+  const days=Math.ceil((new Date(date+"T00:00:00")-new Date().setHours(0,0,0,0))/864e5);
+  if(!date||isNaN(days)){e.innerHTML=`<div class="err">Please choose your exam date.</div>`;return}
+  if(days<1){e.innerHTML=`<div class="err">The exam date must be in the future.</div>`;return}
+  if(days>365){e.innerHTML=`<div class="err">Please choose a date within the next 12 months.</div>`;return}
+  if(!(hrs>=1&&hrs<=40)){e.innerHTML=`<div class="err">Enter study hours between 1 and 40 per week.</div>`;return}
+  const wks=Math.min(12,Math.ceil(days/7)),per=Math.min(6,Math.max(2,Math.round(hrs/1.5))),mins=Math.round(hrs*60/per),order=[];
+  Object.keys(T).forEach(k=>{order.push(k);if(hard.includes(k))order.push(k)});
+  const items=[];let c=0;
+  for(let w=1;w<=wks;w++)for(let s=0;s<per;s++){
+    if(w===wks&&s===per-1){items.push({w,t:`Mixed practice quiz on all topics, then review every missed question (${mins} min)`,d:false});continue}
+    const k=order[c++%order.length];items.push({w,t:`${T[k].n}: read the lesson, then take a short quiz (${mins} min)`,d:false});
+  }
+  Store.set("plan",{date,hrs,hard,wks,items});paint();
+}
+function pSave(p){if(!Store.set("plan",p))alert("Couldn’t save your changes in this browser.")}
+function pEdit(i,f,v){const p=Store.get("plan");if(!p)return;if(f==="t"){v=v.trim();if(!v){paint();return}}p.items[i][f]=v;pSave(p)}
+function pDel(i){const p=Store.get("plan");p.items.splice(i,1);pSave(p);paint()}
+function pAdd(w){const p=Store.get("plan");let at=p.items.map(x=>x.w).lastIndexOf(w)+1;p.items.splice(at,0,{w,t:"New task",d:false});pSave(p);paint()}
+
+/* ---------- Progress ---------- */
+function vProgress(){
+  const A=att(),s=tstats();
+  const note=`<div class="card" style="margin-top:14px"><b>Please note:</b> practice performance does not guarantee exam success. These results come from CloudPrep AI’s own questions only and are not a prediction of your official score.</div>`;
+  if(!A.length)return `<h1>Progress</h1>${note}<div class="card empty" style="margin-top:14px"><h3>No recorded quizzes yet</h3><p class="mut">Finish a quiz and your history appears here.</p><button class="btn" onclick="go('quiz')">Go to Quiz Lab</button></div>`;
+  const last=A.slice(-10);
+  return `<h1>Progress</h1>${note}<div class="grid g3" style="margin-top:14px"><div class="card"><div class="stat">${A.length}</div>Quizzes completed</div><div class="card"><div class="stat">${A.reduce((n,a)=>n+a.total,0)}</div>Questions answered</div><div class="card"><div class="stat">${pct(A.reduce((n,a)=>n+a.score,0),A.reduce((n,a)=>n+a.total,0))}%</div>Overall accuracy</div></div>
+  <h2>Last ${last.length} score${last.length>1?"s":""} (%)</h2><div class="card"><div class="bars">${last.map(a=>`<div title="${pct(a.score,a.total)}%" style="height:${Math.max(4,pct(a.score,a.total))}%"></div>`).join("")}</div></div>
+  <h2>Topic performance</h2>${Object.keys(T).map(k=>`<div style="margin:10px 0"><div style="display:flex;justify-content:space-between"><span>${T[k].n}</span><span class="note">${s[k].t?pct(s[k].c,s[k].t)+"% ("+s[k].c+"/"+s[k].t+")":"No answers yet"}</span></div><div class="bar"><i style="width:${pct(s[k].c,s[k].t)}%"></i></div></div>`).join("")}
+  <h2>History</h2><p class="note">Revision practice sessions are listed here but not counted in the scores above.</p>${attAll().slice().reverse().map(a=>`<div class="card" style="margin:8px 0;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><span>${new Date(a.date).toLocaleDateString()} · ${a.topic==="all"?"All topics":esc(T[a.topic]?T[a.topic].n:a.topic)}${KIND[a.kind]?" · "+KIND[a.kind]:""}</span><b>${a.score}/${a.total} (${pct(a.score,a.total)}%)</b></div>`).join("")}
+  <p><button class="btn sm alt" onclick="if(confirm('Delete all quiz history and your study plan from this browser?')){Store.clear();go('overview')}">Reset my data</button></p>`;
+}
+render();
+</script></body></html>
